@@ -1,55 +1,77 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "../../supabase";
+import Sidebar from "../../components/Sidebar";
+import Topbar from "../../components/Topbar";
 
 export default function BroadcastPage() {
+  const [recipients, setRecipients] = useState<string[]>([]);
   const [message, setMessage] = useState("");
-  const [channel, setChannel] = useState("push");
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    async function fetchEmails() {
+      // Fetch unique emails from your reports table
+      const { data, error } = await supabase
+        .from('reports')
+        .select('user_email');
+
+      if (data) {
+        // Use Set to remove duplicate emails
+        const emailList = Array.from(new Set(data.map(r => r.user_email).filter(Boolean)));
+        setRecipients(emailList as string[]);
+      }
+    }
+    fetchEmails();
+  }, []);
+
+  const handleSend = () => {
+    setSending(true);
+    // This is where you'd normally integrate an email service
+    setTimeout(() => {
+      alert(`Message sent to ${recipients.length} citizens!`);
+      setSending(false);
+      setMessage("");
+    }, 1500);
+  };
 
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Mass Communication Tool</h1>
+    <div className="flex min-h-screen">
+      <Sidebar />
+      <div className="flex-1">
+        <Topbar title="Emergency Broadcast" />
+        <main className="p-6">
+          <div className="max-w-2xl bg-white p-6 rounded shadow">
+            <h2 className="text-xl font-semibold mb-4">Send Alert to Citizens</h2>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Recipients ({recipients.length})</label>
+              <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded max-h-20 overflow-y-auto">
+                {recipients.join(", ") || "No emails found in database"}
+              </div>
+            </div>
 
-      <div className="bg-white p-4 shadow rounded border max-w-2xl">
-        <label className="block font-medium mb-2">Message</label>
-        <textarea
-          className="border w-full p-3 rounded mb-4"
-          rows={4}
-          placeholder="Type your emergency alert..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-1">Message</label>
+              <textarea 
+                className="w-full p-2 border rounded h-32" 
+                placeholder="Type emergency update here..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+            </div>
 
-        <label className="block font-medium mb-2">Send Via</label>
-        <select
-          className="border w-full p-3 rounded mb-4"
-          value={channel}
-          onChange={(e) => setChannel(e.target.value)}
-        >
-          <option value="push">Mobile App Notification (Firebase)</option>
-          <option value="sms">SMS to all users (Twilio)</option>
-        </select>
-
-        <button
-         	className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          onClick={() => alert(`Message Sent via ${channel.toUpperCase()}`)}
-          disabled={!message.trim()}
-        >
-          Send Alert
-        </button>
+            <button 
+              onClick={handleSend}
+              disabled={sending || !message}
+              className="bg-red-600 text-white px-6 py-2 rounded disabled:bg-gray-400"
+            >
+              {sending ? "Sending..." : "Broadcast Alert"}
+            </button>
+          </div>
+        </main>
       </div>
-
-      {/* Preview */}
-      <div className="mt-6 max-w-2xl">
-        <h2 className="text-xl font-semibold mb-2">Preview</h2>
-
-        <div className="bg-white p-4 border rounded shadow">
-          <p className="text-gray-700">{message || "Your alert will appear here…"}</p>
-          <p className="text-sm text-gray-500 mt-2">
-            Channel: {channel === "push" ? "Mobile Notification" : "SMS Broadcast"}
-          </p>
-        </div>
-      </div>
-    </main>
+    </div>
   );
 }

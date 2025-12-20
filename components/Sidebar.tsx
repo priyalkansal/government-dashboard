@@ -1,4 +1,3 @@
-// components/Sidebar.tsx
 import Link from "next/link";
 
 export default function Sidebar() {
@@ -11,6 +10,7 @@ export default function Sidebar() {
         <Link className="block px-3 py-2 rounded hover:bg-gray-100" href="/reports">Reports</Link>
         <Link className="block px-3 py-2 rounded hover:bg-gray-100" href="/broadcast">Broadcast</Link>
         <Link className="block px-3 py-2 rounded hover:bg-gray-100" href="/audit">Audit Trail</Link>
+        <Link className="block px-3 py-2 rounded hover:bg-gray-100" href="/predictions">Predictions</Link>
       </nav>
     </aside>
   );

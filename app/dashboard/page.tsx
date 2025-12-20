@@ -1,4 +1,7 @@
-// app/dashboard/page.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "../../supabase";
 import Link from "next/link";
 import SummaryCard from "../../components/SummaryCard";
 import Topbar from "../../components/Topbar";
@@ -7,10 +10,34 @@ import SmallLineChart from "../../components/Charts/LineChart";
 import { reportsPerHour } from "../../mock/data";
 
 export default function DashboardPage() {
+  // 1. Logic to hold real data
+  const [reportCount, setReportCount] = useState("...");
+  const [pendingCount, setPendingCount] = useState("...");
+
+  useEffect(() => {
+    async function getCounts() {
+      // Get Total Reports count
+      const { count: total } = await supabase
+        .from('reports')
+        .select('*', { count: 'exact', head: true });
+      
+      // Get Pending (where status is Open)
+      const { count: pending } = await supabase
+        .from('reports')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'Open');
+
+      if (total !== null) setReportCount(String(total));
+      if (pending !== null) setPendingCount(String(pending));
+    }
+    getCounts();
+  }, []);
+
+  // 2. This is your ORIGINAL UI data structure
   const summary = [
-    { title: "Total Reports", value: "1,234" },
-    { title: "Pending Approval", value: "57" },
-    { title: "Assigned to NGOs", value: "320" },
+    { title: "Total Reports", value: reportCount },
+    { title: "Pending Approval", value: pendingCount },
+    { title: "Assigned to NGOs", value: "320" }, // Keep demo for now
   ];
 
   const demoData = reportsPerHour;
@@ -24,6 +51,7 @@ export default function DashboardPage() {
         <main className="p-6">
           <h1 className="text-2xl font-semibold mb-4">Overview</h1>
 
+          {/* This grid is exactly how you had it before */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             {summary.map((s) => (
               <SummaryCard key={s.title} title={s.title} value={s.value} />
