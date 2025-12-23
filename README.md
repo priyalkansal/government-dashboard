@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+ResQNet | Government Emergency Response Dashboard
+ResQNet is a full-stack crisis management platform designed for government agencies to monitor, manage, and predict emergency reports in real-time. This project has been migrated from a static mock-up to a live, data-driven application.
 
-## Getting Started
+Key Features
+Real-Time Overview
+Live dashboard counters for total reports and pending cases synced directly with Supabase.
 
-First, run the development server:
+Case Management
+A centralized hub to track citizen reports, complete with status updates and detailed information.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Audit Trail
+A chronological system log that tracks every report entry with precise timestamps from the PostgreSQL backend.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Vulnerability Model
+A predictive analytics engine that calculates risk percentages based on the density and types of reports in specific sectors.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Emergency Broadcast
+A communication tool that aggregates unique citizen emails from the database for rapid alert distribution.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Tech Stack
+Framework: Next.js (App Router)
 
-## Learn More
+Database: Supabase (PostgreSQL)
 
-To learn more about Next.js, take a look at the following resources:
+Styling: Tailwind CSS
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Charts: Recharts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Deployment: Hosted on GitHub; Local environment managed via Node.js.
