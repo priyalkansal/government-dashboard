@@ -1,15 +1,13 @@
 "use client"; 
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "../../supabase"; 
-import Topbar from "../../components/Topbar";
-import Sidebar from "../../components/Sidebar";
 import SummaryCard from "../../components/SummaryCard";
 import ReportsLineChart from "../../components/Charts/ReportsLineChart";
 import StatusDonut from "../../components/Charts/StatusDonut";
 import RecentReportsTable from "../../components/RecentReportsTable";
 
-// We keep these for the visual charts until you are ready to map those too
+// Mock data remains for the visual charts 
 import { reportsTrend, reportsByStatus } from "../../mock/reports";
 
 export default function ReportsPage() {
@@ -18,7 +16,7 @@ export default function ReportsPage() {
 
   useEffect(() => {
     async function fetchReports() {
-      // 1. We fetch from your actual table (change 'reports' to your table name)
+      // 1. Fetching live reports from Supabase 
       const { data, error } = await supabase
         .from('reports') 
         .select('*')
@@ -27,12 +25,12 @@ export default function ReportsPage() {
       if (error) {
         console.error("Supabase Error:", error.message);
       } else if (data) {
-        // 2. We transform your data slightly so the Table component understands it
+        // 2. Transforming DB rows for the UI components 
         const formattedData = data.map((report: any) => ({
-          id: report.id.slice(0, 8), // Shortens the UUID for the display
-          title: report.details || "No Details Provided", // Maps 'details' to 'title'
-          priority: "Medium", // Default since your DB doesn't have a priority column
-          status: report.type || "General", // Maps 'type' to 'status'
+          id: report.id.slice(0, 8), 
+          title: report.details || "No Details Provided", 
+          priority: "Medium", 
+          status: report.type || "General", 
           email: report.user_email
         }));
         setDbReports(formattedData);
@@ -43,44 +41,39 @@ export default function ReportsPage() {
     fetchReports();
   }, []);
 
-  // 3. Updated Logic based on your column 'type'
+  // 3. Dynamic logic based on live database state 
   const total = dbReports.length;
   const critical = dbReports.filter(r => r.priority === "High").length;
+  const uniqueUsers = new Set(dbReports.map(r => r.email)).size;
+
+  if (loading) return <div className="text-gray-500 italic">Connecting to Government Database...</div>;
 
   return (
-    <div className="min-h-screen flex">
-      <Sidebar />
-      <div className="flex-1">
-        <Topbar title="Reports & Analytics" />
-        <main className="p-6">
-          <h1 className="text-2xl font-semibold mb-4">Reports & Analytics</h1>
+    <div className="max-w-6xl mx-auto">
+      <h1 className="text-2xl font-semibold mb-6">Reports & Analytics</h1>
 
-          {loading ? (
-            <p>Connecting to Government Database...</p>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                <SummaryCard title="Total Reports" value={String(total)} />
-                <SummaryCard title="Recent Type" value={dbReports[0]?.status || "N/A"} />
-                <SummaryCard title="Active Users" value={String(new Set(dbReports.map(r => r.email)).size)} />
-                <SummaryCard title="Critical" value={String(critical)} />
-              </div>
+      {/* Summary Stats Row */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <SummaryCard title="Total Reports" value={String(total)} />
+        <SummaryCard title="Recent Type" value={dbReports[0]?.status || "N/A"} />
+        <SummaryCard title="Active Users" value={String(uniqueUsers)} />
+        <SummaryCard title="Critical" value={String(critical)} />
+      </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-                <div className="lg:col-span-2">
-                  <ReportsLineChart data={reportsTrend} />
-                </div>
-                <div>
-                  <StatusDonut data={reportsByStatus} />
-                </div>
-              </div>
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div className="lg:col-span-2">
+          <ReportsLineChart data={reportsTrend} />
+        </div>
+        <div>
+          <StatusDonut data={reportsByStatus} />
+        </div>
+      </div>
 
-              <div>
-                <RecentReportsTable rows={dbReports} />
-              </div>
-            </>
-          )}
-        </main>
+      {/* Detailed Reports Table */}
+      <div className="bg-white rounded shadow p-4">
+        <h2 className="font-semibold mb-4">Detailed Incident Log</h2>
+        <RecentReportsTable rows={dbReports} />
       </div>
     </div>
   );

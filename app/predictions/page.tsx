@@ -13,7 +13,7 @@ export default function PredictionsPage() {
   useEffect(() => {
     async function calculateRisk() {
       try {
-        // 1. Fetch only the 'type' column to save speed
+        // 1. Fetch only the 'type' column to save bandwidth
         const { data, error } = await supabase
           .from('reports')
           .select('type');
@@ -39,7 +39,6 @@ export default function PredictionsPage() {
       } catch (err) {
         console.error("Prediction Page Error:", err);
       } finally {
-        // This ensures that even if there is an error, the "loading" spinner stops
         setLoading(false); 
       }
     }
@@ -49,16 +48,17 @@ export default function PredictionsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center py-20">
         <p className="animate-pulse text-gray-500">Generating Vulnerability Model...</p>
       </div>
     );
   }
 
   return (
-    <main className="p-6">
+    <div className="max-w-6xl mx-auto">
       <h1 className="text-2xl font-semibold mb-6">Live Vulnerability Model</h1>
 
+      {/* Probability Cards based on real database types */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {vulnerabilityData.length > 0 ? (
           vulnerabilityData.map((a, i) => (
@@ -69,16 +69,20 @@ export default function PredictionsPage() {
             />
           ))
         ) : (
-          <div className="col-span-3 p-4 bg-yellow-50 text-yellow-700 rounded">
+          <div className="col-span-3 p-4 bg-yellow-50 text-yellow-700 rounded border border-yellow-200">
             No report data found to calculate predictions.
           </div>
         )}
       </div>
 
-      <div className="bg-white p-4 rounded shadow">
+      {/* Predictive Analytics Chart */}
+      <div className="bg-white p-6 rounded shadow">
         <h2 className="text-lg font-semibold mb-4">Predicted Incident Trend</h2>
         <TrendLineChart data={predictedTrend} />
+        <p className="text-xs text-gray-400 mt-4 italic">
+          * Model utilizes historical data clusters to forecast potential escalations.
+        </p>
       </div>
-    </main>
+    </div>
   );
 }
